@@ -2,6 +2,8 @@
 
 基于 [M01 Go 语言 AI 开发基础](https://liwenzhou.com/courses/ai-agent/01-go-ai-agent-basics/) 的零依赖实现。项目保留一个最小 HTTP 服务，同时提供课程配套的 `minicall` 命令行问答工具。
 
+第一章的完整学习说明见 [docs/01-go-ai-agent-basics.md](docs/01-go-ai-agent-basics.md)。
+
 ## 结构
 
 ```text
