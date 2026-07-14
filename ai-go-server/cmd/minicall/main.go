@@ -2,19 +2,16 @@
 package main
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
 	"io"
-	"net/http"
 	"os"
 	"os/signal"
 	"strings"
 	"syscall"
 
 	"github.com/zhishuai-G/ai-agent-go/ai-go-server/internal/llm"
-	"github.com/zhishuai-G/ai-agent-go/ai-go-server/internal/transport"
+	"github.com/zhishuai-G/ai-agent-go/ai-go-server/internal/provider/openai"
 )
 
 // Config contains the provider values required for one non-streaming request.
@@ -67,10 +64,15 @@ func (c Config) validate() error {
 }
 
 func runOnce(ctx context.Context, config Config, question string) error {
-	return runOnceTo(ctx, config, question, os.Stdout, transport.NewClient())
+	provider := openai.New(openai.Config{
+		Name:    "openai-compatible",
+		BaseURL: config.BaseURL,
+		APIKey:  config.APIKey,
+	})
+	return runOnceTo(ctx, config, question, os.Stdout, provider)
 }
 
-func runOnceTo(ctx context.Context, config Config, question string, output io.Writer, client *transport.Client) error {
+func runOnceTo(ctx context.Context, config Config, question string, output io.Writer, provider llm.Provider) error {
 	if err := config.validate(); err != nil {
 		return err
 	}
@@ -80,44 +82,17 @@ func runOnceTo(ctx context.Context, config Config, question string, output io.Wr
 	if output == nil {
 		return fmt.Errorf("output is nil")
 	}
-	if client == nil {
-		return fmt.Errorf("client is nil")
+	if provider == nil {
+		return fmt.Errorf("provider is nil")
 	}
 
-	payload, err := json.Marshal(llm.ChatRequest{
-		Model: config.Model,
-		Messages: []llm.Message{
+	request := llm.NewChatRequest(
+		config.Model,
+		[]llm.Message{
 			{Role: llm.RoleUser, Content: question},
 		},
-	})
-	if err != nil {
-		return fmt.Errorf("encode chat request: %w", err)
-	}
-
-	req, err := http.NewRequestWithContext(
-		ctx,
-		http.MethodPost,
-		config.BaseURL+"/chat/completions",
-		bytes.NewReader(payload),
 	)
-	if err != nil {
-		return fmt.Errorf("build chat request: %w", err)
-	}
-	req.Header.Set("Authorization", "Bearer "+config.APIKey)
-	req.Header.Set("Content-Type", "application/json")
-
-	resp, err := client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode < http.StatusOK || resp.StatusCode >= http.StatusMultipleChoices {
-		body, _ := io.ReadAll(io.LimitReader(resp.Body, 8<<10))
-		return fmt.Errorf("provider returned %s: %s", resp.Status, strings.TrimSpace(string(body)))
-	}
-
-	response, err := llm.DecodeChatResponse(resp.Body)
+	response, err := provider.Chat(ctx, request)
 	if err != nil {
 		return err
 	}

@@ -81,3 +81,18 @@ func TestParseInto(t *testing.T) {
 		t.Fatalf("City = %q", value.City)
 	}
 }
+
+func TestNewChatRequestOptions(t *testing.T) {
+	request := NewChatRequest(
+		"test-model",
+		[]Message{{Role: RoleUser, Content: "hello"}},
+		WithTemperature(0),
+		WithMaxTokens(128),
+	)
+	if request.Temperature == nil || *request.Temperature != 0 {
+		t.Fatalf("Temperature = %v, want explicit zero", request.Temperature)
+	}
+	if request.MaxTokens != 128 {
+		t.Fatalf("MaxTokens = %d", request.MaxTokens)
+	}
+}

@@ -2,7 +2,10 @@
 
 基于 [M01 Go 语言 AI 开发基础](https://liwenzhou.com/courses/ai-agent/01-go-ai-agent-basics/) 的零依赖实现。项目保留一个最小 HTTP 服务，同时提供课程配套的 `minicall` 命令行问答工具。
 
-第一章的完整学习说明见 [docs/01-go-ai-agent-basics.md](docs/01-go-ai-agent-basics.md)。
+课程学习文档：
+
+- [第一章：Go Agent 开发基础](docs/01-go-ai-agent-basics.md)
+- [第二章：LLM 全平台接入](docs/02-llm-provider-adapter.md)
 
 ## 结构
 
@@ -10,6 +13,10 @@
 .
 ├── cmd/minicall          # OpenAI 兼容 API 的单次问答 CLI
 ├── internal/llm          # Provider 接口、统一消息模型与 JSON 解析
+├── internal/provider     # OpenAI 兼容、Claude Provider 与注册表
+├── internal/router       # 多 Provider 的优先级路由与降级
+├── internal/schema       # 结构化输出/工具参数的 JSON Schema 生成
+├── internal/cost         # token 用量和成本累计
 ├── internal/stream       # Context 感知的泛型 Channel 消费工具
 ├── internal/transport    # 连接池、限流接口、重试退避 HTTP 客户端
 └── main.go               # 保留的服务首页和健康检查

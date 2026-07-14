@@ -8,7 +8,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/zhishuai-G/ai-agent-go/ai-go-server/internal/transport"
+	"github.com/zhishuai-G/ai-agent-go/ai-go-server/internal/provider/openai"
 )
 
 func TestRunOnceTo(t *testing.T) {
@@ -44,7 +44,11 @@ func TestRunOnceTo(t *testing.T) {
 		BaseURL: server.URL,
 		APIKey:  "test-key",
 		Model:   "test-model",
-	}, "say hello", &output, transport.NewClient())
+	}, "say hello", &output, openai.New(openai.Config{
+		Name:    "test",
+		BaseURL: server.URL,
+		APIKey:  "test-key",
+	}))
 	if err != nil {
 		t.Fatal(err)
 	}
