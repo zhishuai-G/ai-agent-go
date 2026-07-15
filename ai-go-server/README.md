@@ -6,13 +6,16 @@
 
 - [第一章：Go Agent 开发基础](docs/01-go-ai-agent-basics.md)
 - [第二章：LLM 全平台接入](docs/02-llm-provider-adapter.md)
+- [第三章：Prompt 与上下文工程基础](docs/03-prompt-context.md)
 
 ## 结构
 
 ```text
 .
 ├── cmd/minicall          # OpenAI 兼容 API 的单次问答 CLI
+├── cmd/docqa             # 基于本地资料的文档问答 CLI
 ├── internal/llm          # Provider 接口、统一消息模型与 JSON 解析
+├── internal/prompt       # Prompt 模板、上下文预算与文档助手上下文
 ├── internal/provider     # OpenAI 兼容、Claude Provider 与注册表
 ├── internal/router       # 多 Provider 的优先级路由与降级
 ├── internal/schema       # 结构化输出/工具参数的 JSON Schema 生成
@@ -61,4 +64,5 @@ make test
 make vet
 make fmt
 make minicall QUESTION='你好'
+make docqa DOCS=examples/docqa/gateway.md QUESTION='默认超时是多少？'
 ```
